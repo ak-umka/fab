@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue';
 import { useImageByIdStore } from '@/stores/imageById';
 import { type ImageResponse } from '@/interfaces';
 import { useRoute } from 'vue-router';
+import { useFavoriteStore } from '@/stores/favorite';
 
 const route = useRoute();
 const id = route.params.id.toString();
@@ -10,19 +11,36 @@ console.log(id);
 
 
 const imageStore = useImageByIdStore();
-const image = ref<ImageResponse | null>(null);
+const favoriteStore = useFavoriteStore();
+const image = ref<ImageResponse>();
 
 onMounted(async () => {
     await imageStore.fetchImage(id);
     image.value = imageStore.image;
 });
 
+const addToFavorites = (image: ImageResponse) => {
+    favoriteStore.addToFavorites(image);
+};
+
+const removeFromFavorites = (id: string) => {
+    favoriteStore.removeFromFavorites(id);
+};
+
+const isFavorite = (image: ImageResponse) => {
+    return favoriteStore.favorite.some((favImage) => favImage.id === image.id);
+};
 </script>
 
 <template>
     <div class="main">
+        <div class="background-image" :style="{ backgroundImage: `url(${image?.urls?.full})` }" />
         <div class="card">
             <img :src="image?.urls?.full" :alt="image?.alt_description" />
+            <template v-if="image">
+                <button v-if="isFavorite(image)" @click="removeFromFavorites(image.id)">Удалить из избранного</button>
+                <button v-else @click="addToFavorites(image)">Добавить в избранное</button>
+            </template>
         </div>
         <div class="content">
             <h1>{{ image?.alt_description }}</h1>
@@ -59,6 +77,24 @@ onMounted(async () => {
 <style lang="scss">
 .main {
     display: flex;
+    background: white;
+    border-radius: 10px;
+    padding: 40px;
+    margin-top: 20px;
+    min-height: calc(100vh - 80px);
+
+    .background-image {
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background-size: cover;
+        background-position: center;
+        position: absolute;
+        box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
+        z-index: -1;
+        filter: blur(3px) brightness(0.7) grayscale(100%);
+    }
 
     .card {
         width: 60%;
@@ -68,12 +104,33 @@ onMounted(async () => {
         position: relative;
         color: #fff;
         box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
+        background-size: cover;
+        background-position: center;
 
         img {
             position: absolute;
             object-fit: cover;
             width: 100%;
             height: 100%;
+        }
+
+        button {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background-color: #050505;
+            border: none;
+            border-radius: 0 0 10px 10px;
+            font-weight: normal;
+            opacity: 0;
+            transition: opacity .3s ease-out;
+        }
+
+        &:hover button {
+            transition: opacity .3s ease-in;
+            opacity: 1;
         }
     }
 
@@ -141,6 +198,61 @@ onMounted(async () => {
                     border-radius: 5px;
                     font-size: 14px;
                     color: #4e4e4e;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .main {
+        flex-direction: column;
+        padding: 20px;
+
+        .card {
+            width: 100%;
+            height: 20rem;
+        }
+
+        .content {
+            margin-top: 18px;
+            width: 100%;
+            padding-left: 0;
+            gap: 1rem;
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .author {
+                gap: 0.5rem;
+
+                .avatar {
+                    width: 1.5rem;
+                    height: 1.5rem;
+                }
+            }
+
+            .info {
+                flex-direction: column;
+                gap: 0.5rem;
+                width: 100%;
+
+                .views,
+                .downloads,
+                .likes {
+                    flex-direction: row;
+                    justify-content: space-between;
+                    width: 100%;
+                }
+            }
+
+            .tags {
+                width: 100%;
+                gap: 0.5rem;
+
+                .tags-list {
+                    justify-content: center;
                 }
             }
         }

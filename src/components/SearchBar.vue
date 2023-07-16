@@ -30,7 +30,7 @@ const searchImages = async () => {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .search-container {
     display: flex;
     align-items: center;
@@ -42,6 +42,7 @@ const searchImages = async () => {
         font-size: 16px;
         border: 1px solid #ddd;
         border-radius: 16px;
+        color: white;
     }
 
     .search-button {
@@ -49,10 +50,28 @@ const searchImages = async () => {
         padding: 8px 16px;
         font-size: 16px;
         background-color: #333;
-        color: #fff;
+        color: #0b0b0b;
+        background: #fff;
         border: none;
         border-radius: 16px;
         cursor: pointer;
+    }
+}
+
+@media (max-width: 479px) {
+    .search-container {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .search-input {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .search-button {
+            width: 100%;
+            margin-left: 0;
+        }
     }
 }
 </style>

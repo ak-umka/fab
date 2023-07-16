@@ -1,7 +1,10 @@
 <template>
     <div>
         <h1 class="page-title">Главная страница</h1>
-        <SearchBar @searchResults="updateRandomImages" />
+        <div>
+            <img class="search-image" src="@/assets/images/searchBack.png" alt="Unsplash logo" />
+            <SearchBar @searchResults="updateRandomImages" />
+        </div>
         <div class="image">
             <div v-for="image in randomImages" class="card" :key="image.id">
                 <img :src="image?.urls?.regular" :alt="image.alt_description" />
@@ -47,16 +50,32 @@ const removeFromFavorites = (id: string) => {
 };
 
 const isFavorite = (image: ImageResponse) => {
-  return favoriteStore.favorite.some((favImage) => favImage.id === image.id);
+    return favoriteStore.favorite.some((favImage) => favImage.id === image.id);
 };
 
 </script>
 
 <style lang="scss">
+.search-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    width: 100%;
+    height: 250px;
+    z-index: -1;
+    filter: brightness(0.3);
+}
+
+.page-title {
+    color: #fff;
+}
+
 .image {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
+    margin-top: 6rem;
 
     .card {
         flex: 1 1 calc((100% / 3) - 2rem);
@@ -144,5 +163,36 @@ const isFavorite = (image: ImageResponse) => {
     font-size: 24px;
     margin-bottom: 16px;
     text-align: center;
+}
+
+@media (max-width: 479px) {
+    .page-title {
+        font-size: 18px;
+    }
+
+    .image {
+        display: block;
+
+        .card {
+            height: 16rem;
+            width: 100%;
+            margin-bottom: 1rem;
+
+            a {
+                inset: auto auto 15px 15px;
+                max-width: 60%;
+
+                h3 {
+                    font-size: 0.8rem;
+                    margin-bottom: 0.2rem;
+                }
+
+                p {
+                    font-size: 0.5rem;
+                    margin-bottom: 0.8rem;
+                }
+            }
+        }
+    }
 }
 </style>
